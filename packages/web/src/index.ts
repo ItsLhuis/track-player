@@ -14,7 +14,9 @@ export {
   DEFAULT_Q,
   DEFAULT_UPDATE_INTERVAL,
   MIN_RATE,
-  MAX_RATE
+  MAX_RATE,
+  // Base classes (for custom implementations)
+  BaseTrackPlayer
 } from "@track-player/core"
 
 // Re-export types from core
@@ -22,6 +24,7 @@ export type {
   Track,
   Progress,
   SetupOptions,
+  BaseSetupOptions,
   TrackChangedEventData,
   PlaybackStateEventData,
   PlaybackErrorEventData,
@@ -33,10 +36,12 @@ export type {
   EqualizerBand,
   EqualizerPreset,
   EqualizerState,
-  AudioAnalysisData
+  AudioAnalysisData,
+  PlayerAdapter
 } from "@track-player/core"
 
-// Export web-specific setup options
+// Export web-specific implementations
+export { WebPlayerAdapter } from "./WebPlayerAdapter"
 export type { WebSetupOptions } from "./TrackPlayer"
 
 // Export TrackPlayer

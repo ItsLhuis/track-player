@@ -1,49 +1,53 @@
 export {
   Capability,
-  Event,
-  State,
-  RepeatMode,
   DEFAULT_CAPABILITIES,
-  EQUALIZER_FREQUENCIES,
-  EQUALIZER_PRESETS,
-  GAIN_MIN,
-  GAIN_MAX,
   DEFAULT_Q,
   DEFAULT_UPDATE_INTERVAL,
+  EQUALIZER_FREQUENCIES,
+  EQUALIZER_PRESETS,
+  Event,
+  GAIN_MAX,
+  GAIN_MIN,
+  MAX_RATE,
   MIN_RATE,
-  MAX_RATE
+  RepeatMode,
+  State
 } from "./constants"
 
 export type {
-  Track,
-  Progress,
-  SetupOptions,
-  TrackChangedEventData,
-  PlaybackStateEventData,
+  AudioAnalysisData,
+  EqualizerBand,
+  EqualizerFrequency,
+  EqualizerPreset,
+  EqualizerState,
+  EventData,
+  EventHandler,
   PlaybackErrorEventData,
   PlaybackProgressEventData,
   PlaybackQueueEndedEventData,
-  EventData,
-  EventHandler,
-  EqualizerFrequency,
-  EqualizerBand,
-  EqualizerPreset,
-  EqualizerState,
-  AudioAnalysisData
+  PlaybackStateEventData,
+  Progress,
+  SetupOptions,
+  Track,
+  TrackChangedEventData
 } from "./types"
 
-export { QueueManager } from "./QueueManager"
-export { EventEmitter } from "./EventEmitter"
 export { EqualizerManager } from "./EqualizerManager"
+export { EventEmitter } from "./EventEmitter"
+export { QueueManager } from "./QueueManager"
+
+export { BaseTrackPlayer } from "./BaseTrackPlayer"
+export type { BaseSetupOptions } from "./BaseTrackPlayer"
+export type { PlayerAdapter } from "./PlayerAdapter"
 
 export {
-  TrackPlayerError,
-  SetupNotCalledError,
-  PlayerNotInitializedError,
-  NoTrackLoadedError,
   CapabilityNotEnabledError,
+  InvalidOperationError,
+  NoTrackLoadedError,
+  PlayerNotInitializedError,
+  SetupNotCalledError,
   TrackNotFoundError,
-  InvalidOperationError
+  TrackPlayerError
 } from "./errors"
 
-export { clampVolume, clampRate, isPowerOfTwo } from "./utils"
+export { clampRate, clampVolume, isPowerOfTwo } from "./utils"
