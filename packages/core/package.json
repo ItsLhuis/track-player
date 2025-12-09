@@ -1,0 +1,43 @@
+{
+  "name": "@track-player/core",
+  "version": "1.0.0",
+  "description": "Core platform-agnostic logic for Track Player",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "audio",
+    "player",
+    "track",
+    "music",
+    "equalizer"
+  ],
+  "author": "ItsLhuis",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ItsLhuis/track-player.git",
+    "directory": "packages/core"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
