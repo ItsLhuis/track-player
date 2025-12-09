@@ -18,11 +18,12 @@ import TrackPlayer, {
   Event,
   RepeatMode,
   State,
-  type Track,
   useActiveTrack,
   usePlaybackState,
   useProgress,
-  useTrackPlayerEvents
+  useTrackPlayerEvents,
+  type EqualizerPreset,
+  type Track
 } from "@track-player/web"
 
 import localPureArtwork from "../assets/pure/artwork.jpg"
@@ -380,7 +381,7 @@ const Equalizer = () => {
   const handlePresetChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value
     setPreset(value)
-    TrackPlayer.setEqualizerPreset(value as any)
+    TrackPlayer.setEqualizerPreset(value as EqualizerPreset)
     setBands(TrackPlayer.getEqualizerBands())
   }, [])
 
@@ -594,38 +595,45 @@ const PlayerReady = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>
 }
 
-// Main app component
-function App() {
+// Player UI that is rendered only when the player is ready
+const PlayerUI = () => {
   const [volume, setVolume] = useState(0.5)
   const [repeatMode, setRepeatMode] = useState<RepeatMode>(RepeatMode.Off)
 
   return (
-    <PlayerReady>
-      <div className="p-6 bg-gray-50">
-        <div className="max-w-lg mx-auto p-6 bg-white rounded-xl shadow-lg">
-          <h1 className="mb-6 text-2xl font-bold text-center">@track-player/web</h1>
-          <NowPlaying />
-          <ProgressBar isLive={useActiveTrack()?.isLiveStream || false} />
-          <div className="mb-4">
-            <PlaybackControls />
-          </div>
-          <div className="flex items-center justify-between mb-6">
-            <VolumeControl volume={volume} setVolume={setVolume} />
-            <PlaybackSpeedControl isLive={useActiveTrack()?.isLiveStream || false} />
-            <RepeatModeControl repeatMode={repeatMode} setRepeatMode={setRepeatMode} />
-          </div>
-          <Equalizer />
-          <QueueManager />
-          <div className="p-3 mt-6 text-sm text-gray-600 bg-gray-100 rounded-lg">
-            <p>
-              <strong>Player state:</strong> <span className="font-mono">{usePlaybackState()}</span>
-            </p>
-            <p>
-              <strong>Repeat mode:</strong> <span className="font-mono">{repeatMode}</span>
-            </p>
-          </div>
+    <div className="p-6 bg-gray-50">
+      <div className="max-w-lg mx-auto p-6 bg-white rounded-xl shadow-lg">
+        <h1 className="mb-6 text-2xl font-bold text-center">@track-player/web</h1>
+        <NowPlaying />
+        <ProgressBar isLive={useActiveTrack()?.isLiveStream || false} />
+        <div className="mb-4">
+          <PlaybackControls />
+        </div>
+        <div className="flex items-center justify-between mb-6">
+          <VolumeControl volume={volume} setVolume={setVolume} />
+          <PlaybackSpeedControl isLive={useActiveTrack()?.isLiveStream || false} />
+          <RepeatModeControl repeatMode={repeatMode} setRepeatMode={setRepeatMode} />
+        </div>
+        <Equalizer />
+        <QueueManager />
+        <div className="p-3 mt-6 text-sm text-gray-600 bg-gray-100 rounded-lg">
+          <p>
+            <strong>Player state:</strong> <span className="font-mono">{usePlaybackState()}</span>
+          </p>
+          <p>
+            <strong>Repeat mode:</strong> <span className="font-mono">{repeatMode}</span>
+          </p>
         </div>
       </div>
+    </div>
+  )
+}
+
+// Main app component
+function App() {
+  return (
+    <PlayerReady>
+      <PlayerUI />
     </PlayerReady>
   )
 }
