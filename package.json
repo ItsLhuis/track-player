@@ -8,7 +8,7 @@
   "license": "MIT",
   "author": "ItsLhuis",
   "scripts": {
-    "prepare": "husky || true",
+    "prepare": "husky && turbo run build --filter=@track-player/*",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "start": "turbo run start",
