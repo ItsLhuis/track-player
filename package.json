@@ -1,0 +1,50 @@
+{
+  "name": "track-player",
+  "version": "1.0.0",
+  "description": "A cross-platform audio player library for React and React Native with unified API, equalizer, and media controls",
+  "workspaces": [
+    "packages/*"
+  ],
+  "license": "MIT",
+  "author": "ItsLhuis",
+  "scripts": {
+    "prepare": "husky || true",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "lint:root": "eslint .",
+    "lint:fix": "turbo run lint:fix",
+    "lint:fix:root": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "turbo run typecheck"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=10.23.0"
+  },
+  "packageManager": "pnpm@10.23.0",
+  "devDependencies": {
+    "@commitlint/cli": "^20.2.0",
+    "@commitlint/config-conventional": "^20.2.0",
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
+    "prettier": "^3.6.2",
+    "turbo": "^2.6.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.49.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md,yaml,yml}": [
+      "prettier --write"
+    ]
+  }
+}
