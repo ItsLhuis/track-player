@@ -1,0 +1,59 @@
+{
+  "name": "@track-player/native",
+  "version": "1.0.0",
+  "description": "Audio player for React Native applications with equalizer, visualization, and lock screen controls support",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "audio",
+    "player",
+    "track",
+    "music",
+    "equalizer",
+    "react-native",
+    "expo",
+    "lock-screen",
+    "background-audio"
+  ],
+  "author": "ItsLhuis",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ItsLhuis/track-player.git",
+    "directory": "packages/native"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.0",
+    "react-native": ">=0.70.0",
+    "react-native-audio-api": ">=0.5.0"
+  },
+  "dependencies": {
+    "@track-player/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.10",
+    "react": "^19.1.0",
+    "react-native": "^0.79.2",
+    "react-native-audio-api": "^0.7.1",
+    "typescript": "^5.9.3"
+  }
+}
