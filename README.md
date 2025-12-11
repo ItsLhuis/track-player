@@ -12,8 +12,8 @@ platform-specific optimizations.
 
 | Package                                   | Description                    | Status            |
 | ----------------------------------------- | ------------------------------ | ----------------- |
-| [`@track-player/core`](packages/core)     | Shared platform-agnostic logic | 🚧 In Development |
-| [`@track-player/web`](packages/web)       | Web implementation for React   | 🚧 In Development |
+| [`@track-player/core`](packages/core)     | Shared platform-agnostic logic | ✅ Complete       |
+| [`@track-player/web`](packages/web)       | Web implementation for React   | ✅ Complete       |
 | [`@track-player/native`](packages/native) | React Native implementation    | 🚧 In Development |
 
 ## Features
@@ -71,30 +71,6 @@ The native package provides React Native-specific implementations:
 - Lock screen controls and remote commands
 - Background playback support
 - React hooks for native
-
-## Installation
-
-### Web
-
-```bash
-npm install @track-player/web
-```
-
-### React Native
-
-```bash
-npm install @track-player/native react-native-audio-api
-```
-
-## Migration from react-track-player-web
-
-If you're currently using `react-track-player-web`, migration to `@track-player/web` is
-straightforward:
-
-```diff
-- import TrackPlayer from "react-track-player-web"
-+ import TrackPlayer from "@track-player/web"
-```
 
 ## License
 
