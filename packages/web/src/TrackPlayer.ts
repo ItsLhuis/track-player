@@ -136,7 +136,7 @@ class WebTrackPlayer extends BaseTrackPlayer {
       album: currentTrack.album ?? ""
     }
 
-    if (currentTrack.artwork) {
+    if (currentTrack.artwork && typeof currentTrack.artwork === "string") {
       metadata.artwork = [{ src: currentTrack.artwork, sizes: "512x512", type: "image/jpeg" }]
     }
 
@@ -177,7 +177,12 @@ class WebTrackPlayer extends BaseTrackPlayer {
       const nextTrackIndex = currentIndex + 1
       const nextTrack = this.getTrack(nextTrackIndex)
 
-      if (nextTrack && !nextTrack.isLiveStream && !this.metadataLoadedMap.get(nextTrackIndex)) {
+      if (
+        nextTrack &&
+        !nextTrack.isLiveStream &&
+        !this.metadataLoadedMap.get(nextTrackIndex) &&
+        typeof nextTrack.url === "string"
+      ) {
         const tempAudio = new Audio()
         tempAudio.preload = "metadata"
         tempAudio.src = nextTrack.url

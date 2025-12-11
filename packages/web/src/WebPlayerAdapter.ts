@@ -221,6 +221,11 @@ export class WebPlayerAdapter implements PlayerAdapter {
       throw new Error("Player not initialized")
     }
 
+    // In web, url must be a string. Asset IDs (numbers) are not supported.
+    if (typeof track.url !== "string") {
+      throw new Error("Web player only supports string URLs, not asset IDs")
+    }
+
     this.audioElement.src = track.url
     this.audioElement.load()
   }

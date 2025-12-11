@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 
-import { Event, State } from "@track-player/core"
 import type { EventData, EventHandler, Progress, Track } from "@track-player/core"
+import { Event, State } from "@track-player/core"
 
 import TrackPlayer from "./TrackPlayer"
 
@@ -138,4 +138,47 @@ export function useActiveTrack(): Track | undefined {
   useTrackPlayerEvents([Event.PlaybackTrackChanged], onTrackChange)
 
   return activeTrack
+}
+
+/**
+ * Hook that keeps track of the current queue
+ * @returns Current queue of tracks
+ */
+export function useQueue(): Track[] {
+  const [queue, setQueue] = useState<Track[]>([])
+
+  useEffect(() => {
+    const getInitialQueue = () => {
+      try {
+        const currentQueue = TrackPlayer.getQueue()
+        setQueue(currentQueue)
+      } catch {
+        // Player might not be initialized yet
+      }
+    }
+
+    getInitialQueue()
+  }, [])
+
+  const onQueueChange = useCallback(() => {
+    try {
+      const currentQueue = TrackPlayer.getQueue()
+      setQueue(currentQueue)
+    } catch {
+      // Player might not be initialized yet
+    }
+  }, [])
+
+  useTrackPlayerEvents([Event.PlaybackTrackChanged], onQueueChange)
+
+  return queue
+}
+
+/**
+ * Hook that returns true when the player is in a buffering state
+ * @returns True if the player is buffering
+ */
+export function useIsBuffering(): boolean {
+  const playbackState = usePlaybackState()
+  return playbackState === State.Buffering
 }
