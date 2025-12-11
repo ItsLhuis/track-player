@@ -1,4 +1,9 @@
 packages:
-  - "packages/*"
-  - "docs"
-  - "examples/*"
+  - packages/*
+  - docs
+  - examples/*
+
+publicHoistPattern:
+  - typescript
+  - "*eslint*"
+  - "*prettier*"
