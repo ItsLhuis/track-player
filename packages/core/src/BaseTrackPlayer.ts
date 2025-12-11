@@ -285,21 +285,23 @@ export abstract class BaseTrackPlayer {
    * Handles the can play event
    */
   private handleCanPlay(): void {
-    if (this.state === State.Buffering) {
-      if (this.isChangingTrack && this.playWhenReady) {
-        this.adapter?.play().catch(console.error)
-        this.isChangingTrack = false
-        this.updateState(State.Playing)
-      } else if (this.isChangingTrack && !this.playWhenReady) {
-        this.isChangingTrack = false
-        this.updateState(State.Paused)
-      } else if (!this.adapter?.isPlaying() && !this.playWhenReady) {
-        this.isChangingTrack = false
-        this.updateState(State.Paused)
-      } else {
-        this.isChangingTrack = false
-        this.updateState(State.Playing)
-      }
+    // Always reset isChangingTrack when audio is ready
+    this.isChangingTrack = false
+
+    if (this.playWhenReady) {
+      // Start playback if playWhenReady is set
+      this.adapter
+        ?.play()
+        .then(() => {
+          this.updateState(State.Playing)
+        })
+        .catch((error) => {
+          console.error("Failed to auto-play:", error)
+          this.updateState(State.Paused)
+        })
+    } else {
+      // Audio is ready but not auto-playing
+      this.updateState(State.Paused)
     }
   }
 
@@ -333,13 +335,19 @@ export abstract class BaseTrackPlayer {
   protected async loadTrack(track: Track, preservePlayState = true): Promise<void> {
     this.ensureInitialized()
 
+    // If already loading, wait - don't throw
     if (this.isChangingTrack) {
-      throw new Error(
-        "Another track is currently loading. Please wait for the current operation to complete."
-      )
+      console.warn("Another track is currently loading, waiting...")
+      // Give some time for the previous load to complete
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      if (this.isChangingTrack) {
+        // Force reset if still stuck
+        this.isChangingTrack = false
+      }
     }
 
     this.isChangingTrack = true
+    this.updateState(State.Buffering)
 
     const wasPlaying = preservePlayState && (this.playWhenReady || this.state === State.Playing)
 
@@ -358,7 +366,7 @@ export abstract class BaseTrackPlayer {
         this.adapter!.setRate(this.persistentRate)
       }
 
-      this.updateState(State.Buffering)
+      // Note: isChangingTrack will be reset by handleCanPlay
     } catch (error) {
       this.isChangingTrack = false
       this.eventEmitter.emit({
@@ -477,7 +485,10 @@ export abstract class BaseTrackPlayer {
       throw new TrackNotFoundError(index)
     }
 
-    await this.loadTrack(track, wasPlaying)
+    // Set playWhenReady before loading - handleCanPlay will auto-play if needed
+    this.playWhenReady = wasPlaying
+
+    await this.loadTrack(track, false)
 
     if (initialPosition !== undefined && initialPosition > 0) {
       await this.adapter!.seekTo(initialPosition)
@@ -489,9 +500,7 @@ export abstract class BaseTrackPlayer {
       nextTrack: index
     })
 
-    if (wasPlaying) {
-      await this.play()
-    }
+    // Note: Don't call play() here - handleCanPlay will handle auto-play based on playWhenReady
   }
 
   /**
@@ -644,6 +653,9 @@ export abstract class BaseTrackPlayer {
       const firstTrack = this.queueManager.getCurrentTrack()
 
       if (firstTrack) {
+        // Set playWhenReady before loading - handleCanPlay will auto-play
+        this.playWhenReady = true
+
         await this.loadTrack(firstTrack, false)
 
         this.eventEmitter.emit({
@@ -651,15 +663,25 @@ export abstract class BaseTrackPlayer {
           prevTrack: null,
           nextTrack: 0
         })
+
+        // Don't call play() here - handleCanPlay will handle it
+        return
       }
     } else if (currentIndex === -1) {
       throw new NoTrackLoadedError()
+    }
+
+    // If we're still loading, just set playWhenReady and let handleCanPlay do the work
+    if (this.isChangingTrack || this.state === State.Buffering) {
+      this.playWhenReady = true
+      return
     }
 
     this.playWhenReady = true
 
     try {
       await this.adapter!.play()
+      this.updateState(State.Playing)
     } catch (error) {
       this.eventEmitter.emit({
         type: Event.PlaybackError,
@@ -679,6 +701,7 @@ export abstract class BaseTrackPlayer {
 
     this.playWhenReady = false
     await this.adapter!.pause()
+    this.updateState(State.Paused)
   }
 
   /**

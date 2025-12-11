@@ -7,14 +7,25 @@ import type {
 } from "./constants"
 
 /**
+ * Audio source type
+ *
+ * Can be either a URL string or a Metro asset ID (number from require()).
+ * Metro asset IDs are only supported in React Native.
+ */
+export type AudioSource = string | number
+
+/**
  * Track object type
  *
  * Represents a single audio track with associated metadata,
  * such as title, artist, album, artwork, and duration.
  */
 export interface Track {
-  /** URL of the audio file */
-  url: string
+  /**
+   * URL of the audio file or Metro asset ID from require().
+   * Metro asset IDs (numbers) are only supported in React Native.
+   */
+  url: AudioSource
   /** Track title */
   title: string
   /** Name of the artist */
