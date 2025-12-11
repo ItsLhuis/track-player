@@ -1,61 +1,61 @@
 // Re-export everything from core
 export {
+  // Base classes (for custom implementations)
+  BaseTrackPlayer,
   // Enums
   Capability,
-  Event,
-  State,
-  RepeatMode,
   // Constants
   DEFAULT_CAPABILITIES,
-  EQUALIZER_FREQUENCIES,
-  EQUALIZER_PRESETS,
-  GAIN_MIN,
-  GAIN_MAX,
   DEFAULT_Q,
   DEFAULT_UPDATE_INTERVAL,
-  MIN_RATE,
+  EQUALIZER_FREQUENCIES,
+  EQUALIZER_PRESETS,
+  Event,
+  GAIN_MAX,
+  GAIN_MIN,
   MAX_RATE,
-  // Base classes (for custom implementations)
-  BaseTrackPlayer
+  MIN_RATE,
+  RepeatMode,
+  State
 } from "@track-player/core"
 
 // Re-export types from core
 export type {
-  Track,
-  Progress,
-  SetupOptions,
+  AudioSource,
+  AudioAnalysisData,
   BaseSetupOptions,
-  TrackChangedEventData,
-  PlaybackStateEventData,
+  EqualizerBand,
+  EqualizerFrequency,
+  EqualizerPreset,
+  EqualizerState,
+  EventData,
+  EventHandler,
   PlaybackErrorEventData,
   PlaybackProgressEventData,
   PlaybackQueueEndedEventData,
-  EventData,
-  EventHandler,
-  EqualizerFrequency,
-  EqualizerBand,
-  EqualizerPreset,
-  EqualizerState,
-  AudioAnalysisData,
-  PlayerAdapter
+  PlaybackStateEventData,
+  PlayerAdapter,
+  Progress,
+  SetupOptions,
+  Track,
+  TrackChangedEventData
 } from "@track-player/core"
 
 // Export native-specific implementations
 export { NativePlayerAdapter } from "./NativePlayerAdapter"
-export type { NativeSetupOptions, IOSCategory, IOSMode, IOSOption } from "./TrackPlayer"
+export type { IOSCategory, IOSMode, IOSOption, NativeSetupOptions } from "./TrackPlayer"
 
-// Export TrackPlayer
+// Export TrackPlayer as default
 import TrackPlayer from "./TrackPlayer"
 export default TrackPlayer
-export { TrackPlayer }
 
 // Export hooks
 export {
-  useTrackPlayerEvents,
-  useProgress,
+  useActiveTrack,
+  useIsBuffering,
   usePlaybackState,
   usePlayWhenReady,
-  useActiveTrack,
+  useProgress,
   useQueue,
-  useIsBuffering
+  useTrackPlayerEvents
 } from "./hooks"

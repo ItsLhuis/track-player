@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 
-import { Event, State } from "@track-player/core"
 import type { EventData, EventHandler, Progress, Track } from "@track-player/core"
+import { Event, State } from "@track-player/core"
 
 import TrackPlayer from "./TrackPlayer"
 

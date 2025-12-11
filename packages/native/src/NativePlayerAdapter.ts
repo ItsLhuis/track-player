@@ -1,3 +1,5 @@
+import { Asset } from "expo-asset"
+
 import {
   AudioContext,
   type AudioBuffer,
@@ -9,6 +11,7 @@ import {
 
 import {
   EQUALIZER_FREQUENCIES,
+  type AudioSource,
   type AudioAnalysisData,
   type PlayerAdapter,
   type Track
@@ -35,6 +38,7 @@ export class NativePlayerAdapter implements PlayerAdapter {
   private currentDuration: number = 0
   private currentVolume: number = 1
   private currentRate: number = 1
+  private isLoaded: boolean = false
 
   // Event callbacks
   onEnded?: () => void
@@ -71,6 +75,7 @@ export class NativePlayerAdapter implements PlayerAdapter {
     this.equalizerFilters = []
     this.analyserNode = null
     this.isCurrentlyPlaying = false
+    this.isLoaded = false
     this.startTime = 0
     this.pausedAt = 0
     this.currentDuration = 0
@@ -130,7 +135,11 @@ export class NativePlayerAdapter implements PlayerAdapter {
       } catch {
         // Ignore errors if already stopped
       }
-      this.sourceNode.disconnect()
+      try {
+        this.sourceNode.disconnect()
+      } catch {
+        // Ignore errors if already disconnected
+      }
       this.sourceNode = null
     }
   }
@@ -144,35 +153,47 @@ export class NativePlayerAdapter implements PlayerAdapter {
       throw new Error("AudioContext not initialized")
     }
 
+    // Stop any current playback and reset state
+    this.stopAndCleanupSource()
+    this.isCurrentlyPlaying = false
+    this.isLoaded = false
+    this.pausedAt = 0
+    this.audioBuffer = null
+    this.currentDuration = 0
+
     this.onBuffering?.(true)
 
     try {
-      // Determine if URL is a local file path
-      const isLocalFile = this.isLocalFilePath(track.url)
+      // Resolve the audio source (handle both Metro asset IDs and URLs)
+      const audioSource = await this.resolveAssetSource(track.url)
 
-      if (isLocalFile) {
-        // Use decodeAudioDataSource for local files
-        this.audioBuffer = await this.audioContext.decodeAudioDataSource(track.url)
+      let buffer: AudioBuffer
+
+      if (this.isLocalFilePath(audioSource)) {
+        // Use decodeAudioData with string path for local files
+        buffer = await this.audioContext.decodeAudioData(audioSource)
       } else {
         // Fetch and decode audio data for remote URLs
-        const response = await fetch(track.url)
+        const response = await fetch(audioSource)
 
         if (!response.ok) {
           throw new Error(`HTTP error: ${response.status}`)
         }
 
         const arrayBuffer = await response.arrayBuffer()
-        this.audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer)
+        buffer = await this.audioContext.decodeAudioData(arrayBuffer)
       }
 
-      this.currentDuration = this.audioBuffer.duration
-      this.pausedAt = 0
+      this.audioBuffer = buffer
+      this.currentDuration = buffer.duration
+      this.isLoaded = true
 
       this.onMetadataLoaded?.()
       this.onBuffering?.(false)
       this.onCanPlay?.()
     } catch (error) {
       this.onBuffering?.(false)
+      this.isLoaded = false
       const errorMessage = error instanceof Error ? error.message : String(error)
       this.onError?.(errorMessage, "LOAD_ERROR")
       throw error
@@ -180,13 +201,27 @@ export class NativePlayerAdapter implements PlayerAdapter {
   }
 
   /**
+   * Resolves an asset source to a URI string
+   */
+  private async resolveAssetSource(source: AudioSource): Promise<string> {
+    if (typeof source === "number") {
+      // Metro asset ID - resolve using expo-asset
+      const asset = Asset.fromModule(source)
+      await asset.downloadAsync()
+
+      if (!asset.localUri) {
+        throw new Error("Failed to resolve local asset URI")
+      }
+
+      return asset.localUri
+    }
+
+    // Already a string URL
+    return source
+  }
+
+  /**
    * Determines if a URL represents a local file path
-   *
-   * Supports:
-   * - file:// URIs (e.g., "file:///path/to/audio.mp3")
-   * - Absolute paths starting with / (e.g., "/data/user/0/.../audio.mp3")
-   * - Android content URIs (e.g., "content://...")
-   * - Asset paths (e.g., "asset:/audio.mp3")
    */
   private isLocalFilePath(url: string): boolean {
     return (
@@ -198,7 +233,11 @@ export class NativePlayerAdapter implements PlayerAdapter {
   }
 
   async play(): Promise<void> {
-    if (!this.audioContext || !this.audioBuffer) {
+    if (!this.audioContext) {
+      throw new Error("AudioContext not initialized")
+    }
+
+    if (!this.audioBuffer || !this.isLoaded) {
       throw new Error("No audio loaded")
     }
 
@@ -215,10 +254,13 @@ export class NativePlayerAdapter implements PlayerAdapter {
     // Setup ended callback
     this.sourceNode.onEnded = () => {
       // Only trigger onEnded if playback completed naturally (not stopped/paused)
-      if (this.isCurrentlyPlaying && this.getPosition() >= this.currentDuration - 0.1) {
-        this.isCurrentlyPlaying = false
-        this.pausedAt = 0
-        this.onEnded?.()
+      if (this.isCurrentlyPlaying) {
+        const pos = this.getPosition()
+        if (pos >= this.currentDuration - 0.5) {
+          this.isCurrentlyPlaying = false
+          this.pausedAt = 0
+          this.onEnded?.()
+        }
       }
     }
 
@@ -250,6 +292,7 @@ export class NativePlayerAdapter implements PlayerAdapter {
     this.isCurrentlyPlaying = false
     this.pausedAt = 0
     this.startTime = 0
+    this.isLoaded = false
 
     this.stopAndCleanupSource()
     this.audioBuffer = null
@@ -257,7 +300,7 @@ export class NativePlayerAdapter implements PlayerAdapter {
   }
 
   async seekTo(position: number): Promise<void> {
-    if (!this.audioBuffer) {
+    if (!this.audioBuffer || !this.isLoaded) {
       return
     }
 
@@ -267,9 +310,6 @@ export class NativePlayerAdapter implements PlayerAdapter {
       // Stop current playback
       this.stopAndCleanupSource()
 
-      // Update state
-      this.pausedAt = clampedPosition
-
       // Create new source and start from new position
       if (this.audioContext) {
         this.sourceNode = this.audioContext.createBufferSource()
@@ -277,10 +317,13 @@ export class NativePlayerAdapter implements PlayerAdapter {
         this.sourceNode.playbackRate.value = this.currentRate
 
         this.sourceNode.onEnded = () => {
-          if (this.isCurrentlyPlaying && this.getPosition() >= this.currentDuration - 0.1) {
-            this.isCurrentlyPlaying = false
-            this.pausedAt = 0
-            this.onEnded?.()
+          if (this.isCurrentlyPlaying) {
+            const pos = this.getPosition()
+            if (pos >= this.currentDuration - 0.5) {
+              this.isCurrentlyPlaying = false
+              this.pausedAt = 0
+              this.onEnded?.()
+            }
           }
         }
 
@@ -317,7 +360,7 @@ export class NativePlayerAdapter implements PlayerAdapter {
 
   getBufferedPosition(): number {
     // For AudioBuffer, the entire file is buffered once loaded
-    return this.audioBuffer ? this.currentDuration : 0
+    return this.isLoaded ? this.currentDuration : 0
   }
 
   isPlaying(): boolean {
