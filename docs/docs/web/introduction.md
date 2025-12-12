@@ -144,4 +144,4 @@ if (analysisData) {
 - **TypeScript Support**: Full TypeScript definitions included
 
 Ready to add professional audio playback to your React application? Follow our
-[Installation](/docs/installation) guide to get started!
+[Installation](/docs/web/installation) guide to get started!

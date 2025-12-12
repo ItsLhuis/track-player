@@ -37,6 +37,6 @@ This monorepo currently contains the following packages:
 ## Getting Started
 
 To learn more about implementing the web player, please refer to the
-[Web Player Installation Guide](./web/installation).
+[Web Player Installation Guide](./docs/web/installation).
 
 Ready to build your next audio application? Let's get started!
