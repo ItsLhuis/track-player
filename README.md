@@ -4,7 +4,8 @@
 
 [![license](https://img.shields.io/github/license/ItsLhuis/track-player)](https://github.com/ItsLhuis/track-player/blob/main/LICENSE)
 
-A modular and extensible audio player library with advanced features.
+A complete audio library designed for building rich music experiences. Provides audio playback,
+playlist management, audio effects, and more
 
 ## Packages
 
@@ -64,5 +65,5 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Acknowledgments
 
-- Inspired by the original
+- Inspired by
   [react-native-track-player](https://github.com/doublesymmetry/react-native-track-player).

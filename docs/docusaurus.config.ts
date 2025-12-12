@@ -6,7 +6,8 @@ import { themes as prismThemes } from "prism-react-renderer"
 
 const config: Config = {
   title: "Track Player",
-  tagline: "A modular and extensible audio player library with advanced features",
+  tagline:
+    "A complete audio library designed for building rich music experiences. Provides audio playback, playlist management, audio effects, and more",
   favicon: "img/favicon.ico",
   // Set the production url of your site here
   url: "https://itslhuis.github.io",

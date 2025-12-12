@@ -7,9 +7,9 @@ slug: /
 
 # Introduction to Track Player
 
-Welcome to **Track Player**, a modular and extensible audio player library designed for modern web
-applications and potentially beyond. This monorepo aims to provide a unified core API for audio
-playback, with platform-specific implementations.
+Welcome to **Track Player**, a complete audio library designed for building rich music experiences.
+It provides audio playback, playlist management, audio effects, and more, all built upon a unified
+core API with platform-specific implementations.
 
 ## Our Vision
 

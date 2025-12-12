@@ -1,7 +1,7 @@
 {
   "name": "track-player",
   "version": "1.0.0",
-  "description": "A modular and extensible audio player library with advanced features",
+  "description": "A complete audio library designed for building rich music experiences. Provides audio playback, playlist management, audio effects, and more.",
   "workspaces": [
     "packages/*"
   ],
