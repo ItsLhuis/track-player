@@ -371,6 +371,29 @@ function EqualizerSliders() {
 }
 ```
 
+### Audio Analysis
+
+Get real-time audio analysis data for building visualizers.
+
+#### Configure the analyser
+
+```javascript
+// Configure for high-resolution analysis (fftSize must be a power of 2)
+TrackPlayer.configureAudioAnalyser(4096, 0.5)
+```
+
+#### Get analysis data
+
+```javascript
+// Get real-time audio analysis data
+const analysisData = TrackPlayer.getAudioAnalysisData()
+if (analysisData) {
+  // Use frequencyData for spectrum visualization
+  // Use timeData for waveform visualization
+  renderVisualization(analysisData.frequencyData, analysisData.timeData)
+}
+```
+
 ## Hooks
 
 For convenient integration with React components, the library provides several hooks:
@@ -487,6 +510,42 @@ function NowPlaying() {
 }
 ```
 
+### useQueue
+
+Keeps track of the current playback queue.
+
+```javascript
+import { useQueue } from "@track-player/web"
+
+function Playlist() {
+  const queue = useQueue()
+
+  return (
+    <ul>
+      {queue.map((track, index) => (
+        <li key={`${index}-${track.url}`}>
+          {track.title} - {track.artist}
+        </li>
+      ))}
+    </ul>
+  )
+}
+```
+
+### useIsBuffering
+
+A convenience hook that returns `true` if the player is in the `Buffering` state.
+
+```javascript
+import { useIsBuffering } from "@track-player/web"
+
+function BufferingIndicator() {
+  const isBuffering = useIsBuffering()
+
+  return isBuffering ? <div className="buffering-spinner" /> : null
+}
+```
+
 ### Cleanup
 
 ```javascript
@@ -530,6 +589,7 @@ The player can be in one of these states:
 - `Event.PlaybackTrackChanged`: Fired when the current track changes
 - `Event.PlaybackProgressUpdated`: Fired periodically with position updates
 - `Event.PlaybackError`: Fired when an error occurs during playback
+- `Event.PlaybackQueueEnded`: Fired when playback finishes and the queue is empty
 
 ## License
 

@@ -19,6 +19,7 @@ The library provides the following events, accessible through the `Event` enum:
 | `PlaybackTrackChanged`    | Fired when the current track changes                          |
 | `PlaybackProgressUpdated` | Fired periodically with updated playback position             |
 | `PlaybackError`           | Fired when a playback error occurs                            |
+| `PlaybackQueueEnded`      | Fired when playback finishes and the queue is empty           |
 
 ## Listening to Events
 
@@ -99,6 +100,15 @@ Each event provides specific data:
   type: Event.PlaybackError,
   error: string, // Error message
   code?: string // Error code (if available)
+}
+```
+
+### PlaybackQueueEnded
+
+```typescript
+{
+  type: Event.PlaybackQueueEnded,
+  track: number | null // Index of the last track played, or null if queue was empty
 }
 ```
 

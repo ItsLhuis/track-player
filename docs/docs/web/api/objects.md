@@ -258,8 +258,8 @@ Different events provide different data structures:
 ```typescript
 {
   type: Event.PlaybackTrackChanged
-  prevTrack: number // Index of the previous track (-1 if none)
-  nextTrack: number // Index of the new track (-1 if none)
+  prevTrack: number | null // Index of the previous track (or null if none)
+  nextTrack: number | null // Index of the new track (or null if none)
 }
 ```
 
@@ -280,6 +280,15 @@ Different events provide different data structures:
 {
   type: Event.PlaybackError
   error: string // Error message
+}
+```
+
+### PlaybackQueueEnded Event
+
+```typescript
+{
+  type: Event.PlaybackQueueEnded
+  track: number | null // Index of the last track played, or null if queue was empty
 }
 ```
 
