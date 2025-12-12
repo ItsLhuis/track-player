@@ -1,9 +1,6 @@
-<img src="../../assets/icon.svg" width="100" height="100" /> <!-- Assuming a root assets folder -->
+<img src="../../assets/icon.svg" width="100" height="100" />
 
 # @track-player/core
-
-[![npm version](https://img.shields.io/npm/v/@track-player/core)](https://www.npmjs.com/package/@track-player/core)
-[![license](https://img.shields.io/npm/l/@track-player/core)](https://github.com/ItsLhuis/track-player/blob/main/LICENSE)
 
 This package contains the platform-agnostic core logic for the Track Player monorepo. It is designed
 to be consumed by platform-specific implementations (e.g., `@track-player/web`) to ensure consistent

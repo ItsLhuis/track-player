@@ -1,4 +1,4 @@
-<img src="assets/icon.svg" width="100" height="100" />
+<img src="../../assets/icon.svg" width="100" height="100" />
 
 # @track-player/web
 
