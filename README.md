@@ -4,17 +4,14 @@
 
 [![license](https://img.shields.io/github/license/ItsLhuis/track-player)](https://github.com/ItsLhuis/track-player/blob/main/LICENSE)
 
-A cross-platform audio player library for React and React Native applications. Track Player provides
-a unified API for audio playback across web and mobile platforms, with shared core logic and
-platform-specific optimizations.
+A modular and extensible audio player library with advanced features.
 
 ## Packages
 
-| Package                                   | Description                    | Status            |
-| ----------------------------------------- | ------------------------------ | ----------------- |
-| [`@track-player/core`](packages/core)     | Shared platform-agnostic logic | ✅ Complete       |
-| [`@track-player/web`](packages/web)       | Web implementation for React   | ✅ Complete       |
-| [`@track-player/native`](packages/native) | React Native implementation    | 🚧 In Development |
+| Package                               | Description                    | Status      |
+| ------------------------------------- | ------------------------------ | ----------- |
+| [`@track-player/core`](packages/core) | Shared platform-agnostic logic | ✅ Complete |
+| [`@track-player/web`](packages/web)   | Web implementation for React   | ✅ Complete |
 
 ## Features
 
@@ -32,14 +29,14 @@ platform-specific optimizations.
 
 ## Architecture
 
-Track Player uses a monorepo architecture with three packages:
+Track Player uses a monorepo architecture with a shared core and platform-specific packages:
 
 ```
 track-player/
 ├── packages/
-│   ├── core/     # Platform-agnostic shared logic (~70% of codebase)
-│   ├── web/      # Web-specific implementation
-│   └── native/   # React Native-specific implementation
+│   ├── core/     # Platform-agnostic shared logic
+│   └── web/      # Web-specific implementation for React
+├── docs/         # Documentation website
 └── examples/     # Example applications
 ```
 
@@ -52,25 +49,14 @@ The core package contains all platform-agnostic business logic:
 - Event system
 - Equalizer logic
 - Type definitions
-- Utility functions
 
 ### Web Package
 
-The web package provides browser-specific implementations:
+The web package provides browser-specific implementations for React:
 
-- HTMLAudioElement integration
-- Web Audio API graph construction
+- HTMLAudioElement and Web Audio API integration
 - MediaSession API integration
-- React hooks for web
-
-### Native Package
-
-The native package provides React Native-specific implementations:
-
-- AudioContext and buffer management via `react-native-audio-api`
-- Lock screen controls and remote commands
-- Background playback support
-- React hooks for native
+- A suite of React hooks for easy integration
 
 ## License
 
@@ -78,8 +64,5 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Acknowledgments
 
-- Inspired by
-  [react-native-track-player](https://github.com/doublesymmetry/react-native-track-player)
-- Native audio powered by
-  [react-native-audio-api](https://github.com/software-mansion/react-native-audio-api) from Software
-  Mansion
+- Inspired by the original
+  [react-native-track-player](https://github.com/doublesymmetry/react-native-track-player).
