@@ -1,7 +1,7 @@
 {
   "name": "track-player",
   "version": "1.0.0",
-  "description": "A cross-platform audio player library for React and React Native with unified API, equalizer, and media controls",
+  "description": "A modular and extensible audio player library with advanced features",
   "workspaces": [
     "packages/*"
   ],
