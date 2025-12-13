@@ -23,6 +23,8 @@ export class QueueManager {
       return
     }
 
+    const wasEmpty = this.queue.length === 0
+
     if (
       insertBeforeIndex !== undefined &&
       insertBeforeIndex >= 0 &&
@@ -35,6 +37,10 @@ export class QueueManager {
       }
     } else {
       this.queue.push(...tracksArray)
+    }
+
+    if (wasEmpty && this.currentIndex === -1 && tracksArray.length > 0) {
+      this.currentIndex = 0
     }
   }
 
