@@ -1,18 +1,10 @@
 import type {
   Capability,
-  Event,
-  State,
   EQUALIZER_FREQUENCIES,
-  EQUALIZER_PRESETS
+  EQUALIZER_PRESETS,
+  Event,
+  State
 } from "./constants"
-
-/**
- * Audio source type
- *
- * Can be either a URL string or a Metro asset ID (number from require()).
- * Metro asset IDs are only supported in React Native.
- */
-export type AudioSource = string | number
 
 /**
  * Track object type
@@ -21,11 +13,8 @@ export type AudioSource = string | number
  * such as title, artist, album, artwork, and duration.
  */
 export interface Track {
-  /**
-   * URL of the audio file or Metro asset ID from require().
-   * Metro asset IDs (numbers) are only supported in React Native.
-   */
-  url: AudioSource
+  /** URL of the audio file. */
+  url: string
   /** Track title */
   title: string
   /** Name of the artist */
@@ -222,6 +211,11 @@ export interface EqualizerState {
    * When disabled, all frequency adjustments are bypassed
    */
   enabled: boolean
+  /**
+   * Pre-amplifier gain in decibels to prevent clipping
+   * This is an auto-adjusted value based on the band gains
+   */
+  preAmpGain: number
   /**
    * Array of equalizer bands configuration
    * Contains 10 bands covering the audible frequency spectrum

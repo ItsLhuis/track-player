@@ -15,7 +15,6 @@ export {
 } from "./constants"
 
 export type {
-  AudioSource,
   AudioAnalysisData,
   EqualizerBand,
   EqualizerFrequency,

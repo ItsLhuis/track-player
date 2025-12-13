@@ -15,6 +15,7 @@ export class WebPlayerAdapter implements PlayerAdapter {
   private audioElement: HTMLAudioElement | null = null
   private audioContext: AudioContext | null = null
   private sourceNode: MediaElementAudioSourceNode | null = null
+  private preAmpGainNode: GainNode | null = null
   private gainNode: GainNode | null = null
   private equalizerFilters: BiquadFilterNode[] = []
   private analyserNode: AnalyserNode | null = null
@@ -64,6 +65,7 @@ export class WebPlayerAdapter implements PlayerAdapter {
 
     this.audioContext = null
     this.sourceNode = null
+    this.preAmpGainNode = null
     this.gainNode = null
     this.equalizerFilters = []
     this.analyserNode = null
@@ -158,7 +160,8 @@ export class WebPlayerAdapter implements PlayerAdapter {
   private createAudioNodes(): void {
     if (!this.audioContext) return
 
-    // Create gain node
+    // Create gain nodes
+    this.preAmpGainNode = this.audioContext.createGain()
     this.gainNode = this.audioContext.createGain()
 
     // Create analyser node
@@ -195,16 +198,21 @@ export class WebPlayerAdapter implements PlayerAdapter {
         this.createAudioNodes()
       }
 
-      // Connect the audio graph: source -> filters -> analyser -> gain -> destination
+      // Connect the audio graph: source -> pre-amp -> filters -> analyser -> gain -> destination
       let previousNode: AudioNode = this.sourceNode
 
+      // Connect source to pre-amp
+      previousNode.connect(this.preAmpGainNode!)
+      previousNode = this.preAmpGainNode!
+
+      // Connect through equalizer filters
       for (const filter of this.equalizerFilters) {
         previousNode.connect(filter)
         previousNode = filter
       }
 
+      // Connect to analyser, master gain, and finally destination
       previousNode.connect(this.analyserNode!)
-
       this.analyserNode!.connect(this.gainNode!)
       this.gainNode!.connect(this.audioContext.destination)
     } catch (error) {
@@ -216,14 +224,18 @@ export class WebPlayerAdapter implements PlayerAdapter {
   // Playback Control
   // ============================================
 
+  cancelLoad(): void {
+    if (!this.audioElement) {
+      return
+    }
+    this.audioElement.pause()
+    this.audioElement.src = ""
+    this.audioElement.currentTime = 0
+  }
+
   async load(track: Track): Promise<void> {
     if (!this.audioElement) {
       throw new Error("Player not initialized")
-    }
-
-    // In web, url must be a string. Asset IDs (numbers) are not supported.
-    if (typeof track.url !== "string") {
-      throw new Error("Web player only supports string URLs, not asset IDs")
     }
 
     this.audioElement.src = track.url
@@ -327,14 +339,24 @@ export class WebPlayerAdapter implements PlayerAdapter {
     }
   }
 
+  setEqualizerPreAmpGain(gain: number): void {
+    if (this.preAmpGainNode) {
+      // Convert dB to linear gain value
+      this.preAmpGainNode.gain.value = Math.pow(10, gain / 20)
+    }
+  }
+
   setEqualizerEnabled(enabled: boolean): void {
-    // When disabled, set all gains to 0
-    // When enabled, the gains should be restored by the EqualizerManager
     if (!enabled) {
+      // When disabled, set all gains to 0 and reset pre-amp
       for (const filter of this.equalizerFilters) {
         filter.gain.value = 0
       }
+      if (this.preAmpGainNode) {
+        this.preAmpGainNode.gain.value = 1.0 // 0dB
+      }
     }
+    // When enabled, gains are restored by the EqualizerManager's callbacks
   }
 
   // ============================================
