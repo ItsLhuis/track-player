@@ -184,6 +184,12 @@ export abstract class BaseTrackPlayer {
     this.equalizerManager.setOnEnabledChange((enabled) => {
       this.adapter?.setEqualizerEnabled?.(enabled)
     })
+
+    this.equalizerManager.setOnPreAmpGainChange((gain) => {
+      if (this.equalizerManager.isEnabled()) {
+        this.adapter?.setEqualizerPreAmpGain?.(gain)
+      }
+    })
   }
 
   /**
@@ -335,15 +341,9 @@ export abstract class BaseTrackPlayer {
   protected async loadTrack(track: Track, preservePlayState = true): Promise<void> {
     this.ensureInitialized()
 
-    // If already loading, wait - don't throw
     if (this.isChangingTrack) {
-      console.warn("Another track is currently loading, waiting...")
-      // Give some time for the previous load to complete
-      await new Promise((resolve) => setTimeout(resolve, 100))
-      if (this.isChangingTrack) {
-        // Force reset if still stuck
-        this.isChangingTrack = false
-      }
+      await this.adapter?.cancelLoad?.()
+      this.isChangingTrack = false // Reset immediately
     }
 
     this.isChangingTrack = true
@@ -432,7 +432,15 @@ export abstract class BaseTrackPlayer {
    */
   public async add(tracks: Track | Track[], insertBeforeIndex?: number): Promise<void> {
     this.ensureInitialized()
+    const wasEmpty = this.queueManager.isEmpty()
     this.queueManager.add(tracks, insertBeforeIndex)
+
+    if (wasEmpty && this.queueManager.getCurrentIndex() === 0) {
+      const firstTrack = this.queueManager.getCurrentTrack()
+      if (firstTrack) {
+        await this.loadTrack(firstTrack, false)
+      }
+    }
   }
 
   /**
@@ -442,7 +450,17 @@ export abstract class BaseTrackPlayer {
    */
   public async move(fromIndex: number, toIndex: number): Promise<void> {
     this.ensureInitialized()
+    const prevActiveIndex = this.queueManager.getCurrentIndex()
     this.queueManager.move(fromIndex, toIndex)
+    const newActiveIndex = this.queueManager.getCurrentIndex()
+
+    if (prevActiveIndex !== newActiveIndex) {
+      this.eventEmitter.emit({
+        type: Event.PlaybackTrackChanged,
+        prevTrack: prevActiveIndex >= 0 ? prevActiveIndex : null,
+        nextTrack: newActiveIndex
+      })
+    }
   }
 
   /**
@@ -519,9 +537,7 @@ export abstract class BaseTrackPlayer {
 
     let nextIndex: number
 
-    if (this.repeatMode === RepeatMode.Track) {
-      nextIndex = currentIndex
-    } else if (this.queueManager.isAtEnd()) {
+    if (this.queueManager.isAtEnd()) {
       if (this.repeatMode === RepeatMode.Queue && this.queueManager.getLength() > 0) {
         nextIndex = 0
       } else {
@@ -550,9 +566,7 @@ export abstract class BaseTrackPlayer {
 
     let prevIndex: number
 
-    if (this.repeatMode === RepeatMode.Track) {
-      prevIndex = currentIndex
-    } else if (this.queueManager.isAtStart()) {
+    if (this.queueManager.isAtStart()) {
       if (this.repeatMode === RepeatMode.Queue && this.queueManager.getLength() > 0) {
         prevIndex = this.queueManager.getLength() - 1
       } else {

@@ -30,6 +30,12 @@ export interface PlayerAdapter {
   // ============================================
 
   /**
+   * Cancels any ongoing track loading operation.
+   * @returns Promise that resolves when cancellation is complete, or void.
+   */
+  cancelLoad?(): void | Promise<void>
+
+  /**
    * Loads and prepares a track for playback
    * @param track The track to load
    * @returns Promise that resolves when the track is loaded
@@ -127,6 +133,12 @@ export interface PlayerAdapter {
    * @param gain Gain in dB
    */
   setEqualizerBandGain?(index: number, gain: number): void
+
+  /**
+   * Sets the pre-amp gain for the equalizer
+   * @param gain Pre-amp gain in dB
+   */
+  setEqualizerPreAmpGain?(gain: number): void
 
   /**
    * Enables or disables the equalizer

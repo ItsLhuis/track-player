@@ -19,10 +19,12 @@ export class EqualizerManager {
   private state: EqualizerState
   private onBandChange?: (index: number, gain: number) => void
   private onEnabledChange?: (enabled: boolean) => void
+  private onPreAmpGainChange?: (gain: number) => void
 
   constructor() {
     this.state = {
       enabled: false,
+      preAmpGain: 0,
       bands: this.createDefaultBands()
     }
   }
@@ -39,6 +41,18 @@ export class EqualizerManager {
   /** Clamps a gain value to the valid range (-12dB to +12dB) */
   private clampGain(gain: number): number {
     return Math.max(GAIN_MIN, Math.min(GAIN_MAX, gain))
+  }
+
+  /** Calculates and applies pre-amp gain to prevent clipping */
+  private calculatePreAmpGain(): void {
+    const maxGain = this.state.bands.reduce((max, band) => (band.gain > max ? band.gain : max), 0)
+
+    const newPreAmpGain = maxGain > 0 ? -maxGain : 0
+
+    if (newPreAmpGain !== this.state.preAmpGain) {
+      this.state.preAmpGain = newPreAmpGain
+      this.onPreAmpGainChange?.(this.state.preAmpGain)
+    }
   }
 
   /**
@@ -58,12 +72,33 @@ export class EqualizerManager {
   }
 
   /**
+   * Sets the callback for pre-amp gain changes
+   * @param callback Function to call when pre-amp gain changes
+   */
+  setOnPreAmpGainChange(callback: (gain: number) => void): void {
+    this.onPreAmpGainChange = callback
+  }
+
+  /**
    * Enables or disables the equalizer
    * @param enabled Whether the equalizer should be enabled
    */
   setEnabled(enabled: boolean): void {
+    if (this.state.enabled === enabled) {
+      return
+    }
+
     this.state.enabled = enabled
     this.onEnabledChange?.(enabled)
+
+    // When enabling, re-apply the current state to the adapter
+    if (enabled) {
+      this.state.bands.forEach((band, index) => {
+        this.onBandChange?.(index, band.gain)
+      })
+      this.onPreAmpGainChange?.(this.state.preAmpGain)
+    }
+    // The adapter handles zeroing gains when disabled
   }
 
   /**
@@ -91,6 +126,7 @@ export class EqualizerManager {
     if (band) {
       band.gain = clampedGain
       this.onBandChange?.(index, clampedGain)
+      this.calculatePreAmpGain()
     }
   }
 
@@ -137,6 +173,8 @@ export class EqualizerManager {
         this.onBandChange?.(index, clampedGain)
       }
     })
+
+    this.calculatePreAmpGain()
   }
 
   /**
@@ -152,8 +190,16 @@ export class EqualizerManager {
     }
 
     gains.forEach((gain, index) => {
-      this.setBandGain(index, gain)
+      const clampedGain = this.clampGain(gain)
+      const band = this.state.bands[index]
+
+      if (band) {
+        band.gain = clampedGain
+        this.onBandChange?.(index, clampedGain)
+      }
     })
+
+    this.calculatePreAmpGain()
   }
 
   /**
@@ -164,6 +210,7 @@ export class EqualizerManager {
       band.gain = 0
       this.onBandChange?.(index, 0)
     })
+    this.calculatePreAmpGain()
   }
 
   /**
@@ -173,8 +220,17 @@ export class EqualizerManager {
   getState(): EqualizerState {
     return {
       enabled: this.state.enabled,
+      preAmpGain: this.state.preAmpGain,
       bands: this.getBands()
     }
+  }
+
+  /**
+   * Gets the current pre-amp gain
+   * @returns Pre-amp gain in dB
+   */
+  getPreAmpGain(): number {
+    return this.state.preAmpGain
   }
 
   /**
