@@ -10,9 +10,15 @@ These functions manage the 10-band equalizer with real-time audio processing cap
 equalizer provides precise control over frequency bands ranging from 32Hz to 16kHz, covering the
 full audible spectrum.
 
+:::info Automatic Headroom Management To ensure the best possible audio quality, the player includes
+automatic headroom management. When you boost frequencies, the player automatically reduces the
+overall pre-amplifier gain to prevent digital clipping (distortion). This results in a clean, clear
+sound even with significant EQ adjustments. :::
+
 ## setEqualizerEnabled
 
-Enable or disable the equalizer.
+Enable or disable the equalizer. When re-enabled, the equalizer will restore its previous state,
+including any custom band gains or presets.
 
 ```javascript
 TrackPlayer.setEqualizerEnabled(enabled: boolean): void
@@ -58,7 +64,8 @@ if (TrackPlayer.isEqualizerEnabled()) {
 
 ## setEqualizerBandGain
 
-Set the gain for a specific frequency band.
+Set the gain for a specific frequency band. The player will automatically adjust the pre-amp gain to
+prevent clipping if you boost frequencies.
 
 ```javascript
 TrackPlayer.setEqualizerBandGain(bandIndex: number, gain: number): void
@@ -134,7 +141,8 @@ for (let i = 0; i < 10; i++) {
 
 ## setEqualizerBands
 
-Set the configuration for all equalizer bands at once.
+Set the configuration for all equalizer bands at once. The player will automatically adjust the
+pre-amp gain to prevent clipping based on the new band settings.
 
 ```javascript
 TrackPlayer.setEqualizerBands(bands: EqualizerBand[]): void
@@ -196,7 +204,8 @@ localStorage.setItem("myEQSettings", savedEQ)
 
 ## setEqualizerPreset
 
-Apply a predefined equalizer preset optimized for different music genres.
+Apply a predefined equalizer preset. The player will automatically adjust the pre-amp gain to
+prevent clipping based on the preset's values.
 
 ```javascript
 TrackPlayer.setEqualizerPreset(preset: EqualizerPreset): void

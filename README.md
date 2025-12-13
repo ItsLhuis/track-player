@@ -9,10 +9,10 @@ playlist management, audio effects, and more
 
 ## Packages
 
-| Package                               | Description                    | Status      |
-| ------------------------------------- | ------------------------------ | ----------- |
-| [`@track-player/core`](packages/core) | Shared platform-agnostic logic | ✅ Complete |
-| [`@track-player/web`](packages/web)   | Web implementation for React   | ✅ Complete |
+| Package                               | Description                    |
+| ------------------------------------- | ------------------------------ |
+| [`@track-player/core`](packages/core) | Shared platform-agnostic logic |
+| [`@track-player/web`](packages/web)   | Web implementation for React   |
 
 ## Features
 
@@ -25,7 +25,8 @@ playlist management, audio effects, and more
 - 🌊 Buffer state tracking
 - 📊 Playback progress tracking
 - 🔧 Configurable capabilities
-- 🎛️ 10-band Equalizer with presets and real-time control
+- 🎛️ 10-band Equalizer with presets, real-time control, and automatic anti-clipping for improved
+  audio quality
 - 📈 Audio visualization support
 
 ## Architecture
