@@ -255,8 +255,14 @@ const RepeatModeControl = ({
 }
 
 // Track control buttons component
-const PlaybackControls = () => {
+const PlaybackControls = ({ repeatMode }: { repeatMode: RepeatMode }) => {
   const playerState = usePlaybackState()
+  const { activeTrackIndex, queueLength } = usePlayerQueueStatus()
+
+  const isPreviousDisabled =
+    queueLength === 0 || (activeTrackIndex <= 0 && repeatMode !== RepeatMode.Queue)
+  const isNextDisabled =
+    queueLength === 0 || (activeTrackIndex >= queueLength - 1 && repeatMode !== RepeatMode.Queue)
 
   const togglePlayPause = useCallback(async () => {
     try {
@@ -277,7 +283,8 @@ const PlaybackControls = () => {
     <div className="flex items-center justify-center gap-4">
       <button
         onClick={() => TrackPlayer.skipToPrevious().catch(console.error)}
-        className="p-2 rounded-full hover:bg-gray-100"
+        className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={isPreviousDisabled}
       >
         <SkipBack size={24} />
       </button>
@@ -310,12 +317,33 @@ const PlaybackControls = () => {
       </button>
       <button
         onClick={() => TrackPlayer.skipToNext().catch(console.error)}
-        className="p-2 rounded-full hover:bg-gray-100"
+        className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={isNextDisabled}
       >
         <SkipForward size={24} />
       </button>
     </div>
   )
+}
+
+// Custom hook to provide reactive activeTrackIndex and queueLength
+const usePlayerQueueStatus = () => {
+  const [activeTrackIndex, setActiveTrackIndex] = useState(() => TrackPlayer.getActiveTrackIndex())
+  const [queueLength, setQueueLength] = useState(() => TrackPlayer.getQueue().length)
+
+  // Use TrackPlayer events to keep our local state updated
+  useTrackPlayerEvents([Event.PlaybackTrackChanged], () => {
+    setActiveTrackIndex(TrackPlayer.getActiveTrackIndex())
+    setQueueLength(TrackPlayer.getQueue().length)
+  })
+
+  // Initial load / ensure state is up-to-date on mount
+  useEffect(() => {
+    setActiveTrackIndex(TrackPlayer.getActiveTrackIndex())
+    setQueueLength(TrackPlayer.getQueue().length)
+  }, []) // Empty dependency array ensures this runs once after initial render
+
+  return { activeTrackIndex, queueLength }
 }
 
 // Track info and artwork component
@@ -607,7 +635,7 @@ const PlayerUI = () => {
         <NowPlaying />
         <ProgressBar isLive={useActiveTrack()?.isLiveStream || false} />
         <div className="mb-4">
-          <PlaybackControls />
+          <PlaybackControls repeatMode={repeatMode} />
         </div>
         <div className="flex items-center justify-between mb-6">
           <VolumeControl volume={volume} setVolume={setVolume} />
