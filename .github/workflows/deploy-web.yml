@@ -108,6 +108,6 @@ jobs:
         run: pnpm --filter @track-player/web build
 
       - name: Publish to NPM
-        run: pnpm --filter @track-player/web publish --access public
+        run: pnpm --filter @track-player/web publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
