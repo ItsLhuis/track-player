@@ -3,7 +3,7 @@ name: Release and Publish @track-player/web
 on:
   push:
     tags:
-      - "v*"
+      - "web/v*"
   workflow_dispatch:
 
 permissions:
@@ -24,7 +24,7 @@ jobs:
       - name: Get version from tag
         id: tag_name
         run: |
-          echo "current_version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          echo "current_version=${GITHUB_REF#refs/tags/web-v}" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Checkout code
@@ -38,7 +38,7 @@ jobs:
         with:
           validation_level: none
           version: ${{ steps.tag_name.outputs.current_version }}
-          path: ./CHANGELOG.md
+          path: ./packages/web/CHANGELOG.md
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v2
@@ -71,7 +71,7 @@ jobs:
       - name: Create/update release
         uses: ncipollo/release-action@v1
         with:
-          tag: v${{ needs.build-package.outputs.version }}
+          tag: web-v${{ needs.build-package.outputs.version }}
           name: ${{ env.APP_NAME }} v${{ needs.build-package.outputs.version }}
           body: ${{ needs.build-package.outputs.changelog }}
           prerelease: false
