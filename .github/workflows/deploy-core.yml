@@ -18,26 +18,28 @@ jobs:
     name: Build Package
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.tag_name.outputs.current_version }}
+      version: ${{ steps.extract_version.outputs.version }}
       changelog: ${{ steps.changelog_reader.outputs.changes }}
     steps:
-      - name: Get version from tag
-        id: tag_name
-        run: |
-          echo "current_version=${GITHUB_REF#refs/tags/core-v}" >> $GITHUB_OUTPUT
-        shell: bash
-
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Extract version without prefix
+        id: extract_version
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION=${TAG#core/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Get Changelog Entry
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v2
         with:
-          validation_level: none
-          version: ${{ steps.tag_name.outputs.current_version }}
+          validation_level: warn
+          version: ${{ steps.extract_version.outputs.version }}
           path: ./packages/core/CHANGELOG.md
 
       - name: Setup PNPM
@@ -71,7 +73,7 @@ jobs:
       - name: Create/update release
         uses: ncipollo/release-action@v1
         with:
-          tag: core-v${{ needs.build-package.outputs.version }}
+          tag: core/v${{ needs.build-package.outputs.version }}
           name: ${{ env.APP_NAME }} v${{ needs.build-package.outputs.version }}
           body: ${{ needs.build-package.outputs.changelog }}
           prerelease: false
